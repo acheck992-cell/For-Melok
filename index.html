@@ -1,0 +1,1364 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b13">
+<title>Somewhere, In A Moment</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #090b13;
+  --cream: #f0e9df;
+  --muted: #aaa6ac;
+  --gold: #d8bd91;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  color: var(--cream);
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+body.locked { overflow: hidden; }
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+button:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 5px;
+}
+
+::selection { background: #d8bd9155; }
+
+#stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .65;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: .07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: radial-gradient(ellipse at center, transparent 30%, #0008 100%);
+}
+
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 55%, #25243a 0%, #11121f 35%, #080910 78%);
+  transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
+#intro.gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-content {
+  width: min(90%, 700px);
+  text-align: center;
+  animation: appear 2s both;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: .42em;
+  color: var(--gold);
+}
+
+.intro-title {
+  font: 300 clamp(50px, 10vw, 100px)/.98 'Cormorant Garamond', serif;
+  margin: 34px 0 24px;
+  letter-spacing: -.035em;
+}
+
+.intro-title em { color: #cbb7a1; }
+
+.intro-sub {
+  color: #aaa6b1;
+  font-size: 12px;
+  line-height: 2;
+  letter-spacing: .07em;
+}
+
+.enter {
+  margin-top: 42px;
+  padding: 17px 27px;
+  border: 1px solid #d8bd9170;
+  background: #ffffff04;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 9px;
+  letter-spacing: .3em;
+  transition: .4s;
+}
+
+.enter:hover {
+  background: #d8bd9118;
+  border-color: var(--gold);
+  transform: translateY(-3px);
+}
+
+.enter span { margin-left: 18px; color: var(--gold); }
+
+.intro-bottom {
+  margin-top: 55px;
+  color: #777581;
+  font-size: 9px;
+  letter-spacing: .2em;
+}
+
+#app { opacity: 0; transition: opacity 1.8s ease; }
+#app.ready { opacity: 1; }
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 24px 6vw;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+header > * { pointer-events: auto; }
+
+.brand {
+  font: italic 23px 'Cormorant Garamond', serif;
+  letter-spacing: .04em;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.music-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: #c7c0b8;
+  font-size: 9px;
+  letter-spacing: .15em;
+  padding: 8px 0;
+}
+
+.music-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8a806d;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+
+.music-btn.playing .music-dot {
+  background: #d8bd91;
+  box-shadow: 0 0 12px #d8bd91;
+}
+
+#progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1px;
+  background: var(--gold);
+  z-index: 50;
+  width: 0;
+}
+
+section {
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 120px 20px 80px;
+}
+
+.hero-glow {
+  position: absolute;
+  width: min(75vw, 650px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #a18cb21a;
+  filter: blur(80px);
+  animation: breathe 9s ease-in-out infinite alternate;
+}
+
+.hero-copy {
+  position: relative;
+  text-align: center;
+  z-index: 3;
+  max-width: 760px;
+}
+
+.hero-kicker {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: .36em;
+  font-size: 9px;
+}
+
+.hero h1 {
+  font: 300 clamp(64px, 12vw, 140px)/.88 'Cormorant Garamond', serif;
+  letter-spacing: -.045em;
+  margin: 32px 0;
+}
+
+.hero h1 span {
+  display: block;
+  font-style: italic;
+  color: #c9b6a5;
+  margin-left: .4em;
+}
+
+.hero-copy p {
+  color: #aaa6b1;
+  font-size: 12px;
+  line-height: 2;
+  letter-spacing: .06em;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #827d89;
+  font-size: 8px;
+  letter-spacing: .3em;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(var(--gold), transparent);
+  margin: 14px auto 0;
+  animation: lineDown 2s infinite;
+}
+
+.float-photo {
+  position: absolute;
+  width: clamp(110px, 19vw, 230px);
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  opacity: .65;
+  filter: saturate(.75);
+  box-shadow: 0 20px 90px #0009;
+  border: 1px solid #ffffff20;
+  animation: drift 12s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.float-photo.one { left: 8%; top: 19%; transform: rotate(-9deg); }
+.float-photo.two { right: 8%; top: 17%; transform: rotate(8deg); animation-delay: -4s; }
+.float-photo.three { left: 18%; bottom: 8%; width: clamp(85px, 13vw, 155px); transform: rotate(7deg); animation-delay: -7s; }
+.float-photo.four { right: 17%; bottom: 9%; width: clamp(95px, 15vw, 175px); transform: rotate(-6deg); animation-delay: -2s; }
+
+@keyframes drift {
+  from { translate: 0 -8px; }
+  to { translate: 0 16px; }
+}
+
+@keyframes breathe {
+  from { transform: scale(.85); opacity: .45; }
+  to { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes lineDown {
+  0%, 100% { opacity: .35; transform: scaleY(.75); transform-origin: top; }
+  50% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chapter {
+  padding: 145px 7vw;
+  min-height: 85svh;
+  display: flex;
+  align-items: center;
+}
+
+.chapter-inner {
+  width: min(100%, 1150px);
+  margin: auto;
+}
+
+.chapter-label {
+  color: var(--gold);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .34em;
+  margin-bottom: 35px;
+}
+
+.chapter h2 {
+  font: 300 clamp(45px, 8vw, 94px)/.99 'Cormorant Garamond', serif;
+  letter-spacing: -.03em;
+  margin: 0;
+  max-width: 820px;
+}
+
+.chapter h2 em { color: #cbb7a1; }
+
+.chapter-desc {
+  margin-top: 27px;
+  max-width: 400px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 2.2;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8vw;
+  align-items: center;
+}
+
+.image-frame {
+  position: relative;
+  overflow: hidden;
+  background: #15151f;
+}
+
+.image-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.4s cubic-bezier(.2,.7,.2,1), filter 1s;
+  filter: saturate(.75);
+}
+
+.image-frame:hover img { transform: scale(1.06); filter: saturate(1); }
+
+.feature-photo {
+  aspect-ratio: 4/5;
+  max-height: 690px;
+  border: 1px solid #ffffff1c;
+}
+
+.feature-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, #05050b44, transparent 50%);
+}
+
+.photo-caption {
+  color: #898590;
+  font: italic 15px 'Cormorant Garamond', serif;
+  margin-top: 14px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+}
+
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.full-bleed {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 100px 24px;
+}
+
+.full-bleed-bg {
+  position: absolute;
+  inset: 0;
+  opacity: .34;
+}
+
+.full-bleed-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.5);
+  transform: scale(1.08);
+}
+
+.full-bleed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--bg), #090b1377 50%, var(--bg));
+}
+
+.full-bleed-content { position: relative; z-index: 2; max-width: 780px; }
+
+.full-bleed blockquote {
+  margin: 28px 0;
+  font: italic 300 clamp(36px, 7vw, 75px)/1.12 'Cormorant Garamond', serif;
+}
+
+.full-bleed p {
+  font-size: 11px;
+  color: #c0b8b3;
+  line-height: 2.2;
+}
+
+.gallery-section {
+  padding: 130px 5vw 150px;
+}
+
+.gallery-head {
+  max-width: 1100px;
+  margin: 0 auto 65px;
+}
+
+.gallery-head h2 {
+  font: 300 clamp(48px, 8vw, 90px)/1 'Cormorant Garamond', serif;
+  margin: 22px 0;
+}
+
+.gallery-head p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 2;
+}
+
+.gallery {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.gallery-item {
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: zoom-in;
+  width: 100%;
+  overflow: hidden;
+}
+
+.gallery-item:nth-child(6n+1) { grid-column: 1 / span 5; }
+.gallery-item:nth-child(6n+2) { grid-column: 8 / span 5; margin-top: 100px; }
+.gallery-item:nth-child(6n+3) { grid-column: 3 / span 4; margin-top: 35px; }
+.gallery-item:nth-child(6n+4) { grid-column: 8 / span 5; margin-top: 80px; }
+.gallery-item:nth-child(6n+5) { grid-column: 2 / span 5; margin-top: 25px; }
+.gallery-item:nth-child(6n) { grid-column: 7 / span 5; margin-top: 85px; }
+
+.gallery-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  filter: saturate(.7) brightness(.87);
+  transition: transform 1s cubic-bezier(.2,.7,.2,1), filter 1s;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.045);
+  filter: saturate(1) brightness(1);
+}
+
+.gallery-item .index {
+  display: block;
+  margin-top: 12px;
+  font: italic 14px 'Cormorant Garamond', serif;
+  color: #aaa0a0;
+}
+
+.gallery-item .shine {
+  position: absolute;
+  inset: 0 0 35px;
+  border: 1px solid #ffffff00;
+  transition: border .6s;
+  pointer-events: none;
+}
+
+.gallery-item:hover .shine { border-color: #ffffff55; }
+
+.film-strip {
+  padding: 90px 0 110px;
+  overflow: hidden;
+}
+
+.film-strip h2 {
+  text-align: center;
+  font: 300 clamp(38px, 6vw, 64px) 'Cormorant Garamond', serif;
+  margin: 0 0 40px;
+}
+
+.strip-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: filmMove 70s linear infinite;
+}
+
+.strip-track:hover { animation-play-state: paused; }
+
+.strip-track img {
+  width: 185px;
+  height: 245px;
+  object-fit: cover;
+  filter: saturate(.65);
+  border: 1px solid #ffffff20;
+}
+
+@keyframes filmMove {
+  to { transform: translateX(-50%); }
+}
+
+.note-section {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 100px 22px;
+}
+
+.envelope-wrap {
+  width: min(100%, 600px);
+  text-align: center;
+}
+
+.envelope-wrap h2 {
+  font: 300 clamp(48px, 8vw, 82px) 'Cormorant Garamond', serif;
+  margin: 20px 0;
+}
+
+.envelope-wrap > p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 2;
+}
+
+.envelope {
+  position: relative;
+  width: min(100%, 430px);
+  min-height: 270px;
+  margin: 55px auto 0;
+  padding: 32px;
+  border: 1px solid #d8bd9140;
+  background: linear-gradient(135deg, #22202a, #11121b);
+  cursor: pointer;
+  transition: transform .5s, border-color .5s;
+}
+
+.envelope:hover { transform: translateY(-5px); border-color: #d8bd9190; }
+
+.envelope-symbol {
+  font: 300 54px 'Cormorant Garamond', serif;
+  color: var(--gold);
+}
+
+.envelope-label {
+  margin-top: 20px;
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: #c6b6a6;
+}
+
+.letter {
+  display: none;
+  margin: 28px auto 0;
+  max-width: 410px;
+  color: #d8d0ca;
+  font: 300 20px/1.8 'Cormorant Garamond', serif;
+  text-align: left;
+}
+
+.letter.open { display: block; animation: appear 1.2s both; }
+
+.letter p { margin: 0 0 18px; }
+
+.letter-sign {
+  color: var(--gold);
+  font-style: italic;
+  text-align: right;
+}
+
+.light-section {
+  min-height: 85svh;
+  display: grid;
+  place-items: center;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.light-section h2 {
+  font: 300 clamp(46px, 8vw, 85px)/1.05 'Cormorant Garamond', serif;
+  margin: 24px 0;
+}
+
+.light-section p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 2.2;
+}
+
+#lightCanvas {
+  width: min(90vw, 650px);
+  height: 260px;
+  display: block;
+  margin: 20px auto;
+  cursor: crosshair;
+  touch-action: manipulation;
+}
+
+.light-btn {
+  border: 1px solid #d8bd9170;
+  border-radius: 40px;
+  padding: 14px 24px;
+  background: transparent;
+  color: #e6d6c4;
+  font-size: 9px;
+  letter-spacing: .2em;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.light-btn:hover { background: #d8bd9117; }
+
+.ending {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 100px 24px;
+  overflow: hidden;
+}
+
+.ending h2 {
+  font: 300 clamp(54px, 11vw, 120px)/.98 'Cormorant Garamond', serif;
+  margin: 28px 0;
+}
+
+.ending h2 em { color: #cbb7a1; }
+
+.ending p {
+  color: #a8a1aa;
+  font-size: 12px;
+  line-height: 2.2;
+}
+
+.ending .signature {
+  margin-top: 45px;
+  font: italic 21px 'Cormorant Garamond', serif;
+  color: var(--gold);
+}
+
+.replay {
+  margin-top: 35px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #a49ba0;
+  font-size: 9px;
+  letter-spacing: .25em;
+  border-bottom: 1px solid #d8bd9160;
+  padding: 10px 0;
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 24px;
+  border-top: 1px solid #ffffff0c;
+  color: #66616d;
+  font-size: 8px;
+  letter-spacing: .2em;
+}
+
+#lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #05050bf2;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 55px 20px;
+}
+
+#lightbox.show { display: flex; animation: appear .3s both; }
+
+#lightbox img {
+  max-width: min(86vw, 850px);
+  max-height: 82svh;
+  object-fit: contain;
+  box-shadow: 0 20px 90px #000;
+}
+
+.lightbox-close, .lightbox-prev, .lightbox-next {
+  position: absolute;
+  background: #ffffff09;
+  border: 1px solid #ffffff20;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #ddd;
+}
+
+.lightbox-close { top: 20px; right: 20px; font-size: 22px; }
+.lightbox-prev { left: 20px; top: 50%; }
+.lightbox-next { right: 20px; top: 50%; }
+
+#lightbox-count {
+  position: absolute;
+  bottom: 20px;
+  font-size: 10px;
+  color: #b9adb0;
+  letter-spacing: .2em;
+}
+
+@media (max-width: 700px) {
+  header { padding: 19px 6vw; }
+  .brand { font-size: 20px; }
+  .header-right { gap: 10px; }
+  .float-photo.one { left: -4%; top: 19%; width: 31vw; opacity: .43; }
+  .float-photo.two { right: -3%; top: 18%; width: 31vw; opacity: .43; }
+  .float-photo.three { left: 2%; bottom: 13%; opacity: .45; }
+  .float-photo.four { right: 2%; bottom: 13%; opacity: .45; }
+  .hero h1 { font-size: clamp(57px, 15vw, 95px); }
+  .hero-copy p { font-size: 11px; }
+  .chapter { padding: 100px 7vw; min-height: auto; }
+  .split { grid-template-columns: 1fr; gap: 35px; }
+  .split .image-frame { order: -1; max-width: 440px; margin: auto; }
+  .gallery-section { padding: 100px 5vw; }
+  .gallery { gap: 20px 12px; }
+  .gallery-item:nth-child(n) { grid-column: span 6; margin-top: 0; }
+  .gallery-item:nth-child(odd) { transform: translateY(25px); }
+  .gallery-item img { aspect-ratio: 3/4; }
+  .strip-track img { width: 140px; height: 190px; }
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+  .lightbox-prev, .lightbox-next { width: 34px; height: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+
+<body class="locked">
+
+<canvas id="stars"></canvas>
+<div class="noise"></div>
+<div class="vignette"></div>
+<div id="progress"></div>
+
+<div id="intro">
+  <div class="intro-content">
+    <div class="eyebrow">A small world of its own</div>
+    <h1 class="intro-title">Somewhere,<br><em>in a moment.</em></h1>
+    <p class="intro-sub">
+      Not everything needs a reason.<br>
+      Some things are simply worth creating.
+    </p>
+    <button class="enter" id="enterBtn">ENTER THE EXPERIENCE <span>↗</span></button>
+    <div class="intro-bottom">BEST EXPERIENCED WITH SOUND</div>
+  </div>
+</div>
+
+<div id="app">
+<header>
+  <div class="brand">for a moment.</div>
+  <div class="header-right">
+    <button class="music-btn" id="musicBtn"><span class="music-dot"></span><span id="musicText">SOUND OFF</span></button>
+  </div>
+</header>
+
+<audio id="music" loop preload="auto">
+  <source src="I thought I saw your face today (sped up).mp3" type="audio/mpeg">
+</audio>
+
+<main>
+<section class="hero" id="top">
+  <div class="hero-glow"></div>
+  <img class="float-photo one" src="IMG_20261028_212414_314.jpg" alt="A floating photograph">
+  <img class="float-photo two" src="IMG_20261028_212414_116.jpg" alt="A floating photograph">
+  <img class="float-photo three" src="IMG_20261028_212414_090.jpg" alt="A floating photograph">
+  <img class="float-photo four" src="IMG_20261028_212413_979.jpg" alt="A floating photograph">
+
+  <div class="hero-copy">
+    <div class="hero-kicker">A collection of moments</div>
+    <h1>Not just<br><span>another day.</span></h1>
+    <p>
+      There are photographs.<br>
+      And then there are the feelings they bring back.
+    </p>
+  </div>
+  <div class="scroll-cue">TAKE YOUR TIME<div class="scroll-line"></div></div>
+</section>
+
+<section class="chapter">
+  <div class="chapter-inner split">
+    <div class="reveal">
+      <div class="chapter-label">01 / The beginning</div>
+      <h2>Somewhere after the ordinary, <em>something stays.</em></h2>
+      <p class="chapter-desc">
+        The best moments are not always the loudest ones.
+        Sometimes they are the ones you remember without even trying.
+      </p>
+    </div>
+    <div class="reveal">
+      <div class="image-frame feature-photo">
+        <img src="IMG_20261028_212413_818.jpg" alt="A moment captured in a photograph" loading="lazy">
+      </div>
+      <div class="photo-caption">A frame worth keeping.</div>
+    </div>
+  </div>
+</section>
+
+<section class="full-bleed">
+  <div class="full-bleed-bg">
+    <img src="IMG_20261028_212413_767.jpg" alt="" loading="lazy">
+  </div>
+  <div class="full-bleed-content reveal">
+    <div class="eyebrow">A thought to keep</div>
+    <blockquote>
+      “The world is already full of noise.<br>
+      Here is something quieter.”
+    </blockquote>
+    <p>No big explanation. No particular occasion.<br>Just a moment made with care.</p>
+  </div>
+</section>
+
+<section class="chapter">
+  <div class="chapter-inner split">
+    <div class="reveal">
+      <div class="image-frame feature-photo">
+        <img src="IMG_20261028_212413_604.jpg" alt="A photograph from the collection" loading="lazy">
+      </div>
+      <div class="photo-caption">Some things look better when you slow down.</div>
+    </div>
+    <div class="reveal">
+      <div class="chapter-label">02 / The little details</div>
+      <h2>Look a little closer. <em>Stay a little longer.</em></h2>
+      <p class="chapter-desc">
+        A photo can be just a photo.
+        Or it can become a tiny time machine, taking you back to a feeling you almost forgot.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="gallery-section" id="gallery">
+  <div class="gallery-head reveal">
+    <div class="chapter-label">03 / Frames of something real</div>
+    <h2>One moment at a time.</h2>
+    <p>Take a look around. Tap any photograph to see it in full.</p>
+  </div>
+
+  <div class="gallery">
+    <button class="gallery-item reveal" data-index="0" aria-label="View photograph 1">
+      <img src="IMG_20261028_212414_314.jpg" alt="Photograph 1" loading="lazy"><span class="shine"></span><span class="index">No. 01</span>
+    </button>
+    <button class="gallery-item reveal" data-index="1" aria-label="View photograph 2">
+      <img src="IMG_20261028_212414_116.jpg" alt="Photograph 2" loading="lazy"><span class="shine"></span><span class="index">No. 02</span>
+    </button>
+    <button class="gallery-item reveal" data-index="2" aria-label="View photograph 3">
+      <img src="IMG_20261028_212414_090.jpg" alt="Photograph 3" loading="lazy"><span class="shine"></span><span class="index">No. 03</span>
+    </button>
+    <button class="gallery-item reveal" data-index="3" aria-label="View photograph 4">
+      <img src="IMG_20261028_212413_979.jpg" alt="Photograph 4" loading="lazy"><span class="shine"></span><span class="index">No. 04</span>
+    </button>
+    <button class="gallery-item reveal" data-index="4" aria-label="View photograph 5">
+      <img src="IMG_20261028_212413_818.jpg" alt="Photograph 5" loading="lazy"><span class="shine"></span><span class="index">No. 05</span>
+    </button>
+    <button class="gallery-item reveal" data-index="5" aria-label="View photograph 6">
+      <img src="IMG_20261028_212413_767.jpg" alt="Photograph 6" loading="lazy"><span class="shine"></span><span class="index">No. 06</span>
+    </button>
+    <button class="gallery-item reveal" data-index="6" aria-label="View photograph 7">
+      <img src="IMG_20261028_212413_604.jpg" alt="Photograph 7" loading="lazy"><span class="shine"></span><span class="index">No. 07</span>
+    </button>
+    <button class="gallery-item reveal" data-index="7" aria-label="View photograph 8">
+      <img src="IMG_20261028_210734_431.jpg" alt="Photograph 8" loading="lazy"><span class="shine"></span><span class="index">No. 08</span>
+    </button>
+    <button class="gallery-item reveal" data-index="8" aria-label="View photograph 9">
+      <img src="IMG_20261028_210734_278.jpg" alt="Photograph 9" loading="lazy"><span class="shine"></span><span class="index">No. 09</span>
+    </button>
+    <button class="gallery-item reveal" data-index="9" aria-label="View photograph 10">
+      <img src="IMG_20261028_210734_115.jpg" alt="Photograph 10" loading="lazy"><span class="shine"></span><span class="index">No. 10</span>
+    </button>
+    <button class="gallery-item reveal" data-index="10" aria-label="View photograph 11">
+      <img src="IMG_20261028_210734_093.jpg" alt="Photograph 11" loading="lazy"><span class="shine"></span><span class="index">No. 11</span>
+    </button>
+    <button class="gallery-item reveal" data-index="11" aria-label="View photograph 12">
+      <img src="IMG_20261028_210733_716.jpg" alt="Photograph 12" loading="lazy"><span class="shine"></span><span class="index">No. 12</span>
+    </button>
+    <button class="gallery-item reveal" data-index="12" aria-label="View photograph 13">
+      <img src="IMG_20261028_210733_547.jpg" alt="Photograph 13" loading="lazy"><span class="shine"></span><span class="index">No. 13</span>
+    </button>
+    <button class="gallery-item reveal" data-index="13" aria-label="View photograph 14">
+      <img src="IMG_20261028_210733_531.jpg" alt="Photograph 14" loading="lazy"><span class="shine"></span><span class="index">No. 14</span>
+    </button>
+    <button class="gallery-item reveal" data-index="14" aria-label="View photograph 15">
+      <img src="IMG_20261028_210733_506.jpg" alt="Photograph 15" loading="lazy"><span class="shine"></span><span class="index">No. 15</span>
+    </button>
+  </div>
+</section>
+
+<section class="film-strip">
+  <h2 class="reveal">As if time stood still.</h2>
+  <div class="strip-track" id="filmTrack">
+    <img src="IMG_20261028_212414_314.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_116.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_090.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_979.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_818.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_767.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_604.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_431.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_278.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_115.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_093.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_716.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_547.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_531.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_506.jpg" alt="" loading="lazy">
+  </div>
+</section>
+
+<section class="full-bleed">
+  <div class="full-bleed-bg">
+    <img src="IMG_20261028_210734_431.jpg" alt="" loading="lazy">
+  </div>
+  <div class="full-bleed-content reveal">
+    <div class="eyebrow">04 / A pause in the noise</div>
+    <blockquote>
+      “Maybe the nicest things<br>
+      are the ones that ask for nothing.”
+    </blockquote>
+    <p>Just a thought. Just a pause.<br>Just something made to bring a smile.</p>
+  </div>
+</section>
+
+<section class="note-section">
+  <div class="envelope-wrap reveal">
+    <div class="eyebrow">05 / Before you go</div>
+    <h2>One last thing.</h2>
+    <p>There is a note here, if you feel like opening it.</p>
+
+    <button class="envelope" id="envelope" aria-expanded="false">
+      <div class="envelope-symbol" id="envelopeSymbol">✉</div>
+      <div class="envelope-label" id="envelopeLabel">OPEN WHEN YOU'RE READY</div>
+      <div class="letter" id="letter">
+        <p>Hey,</p>
+        <p>
+          I wanted to make something a little different instead of just sending another ordinary message.
+          So I put these moments together, added some music, and gave them their own small space.
+        </p>
+        <p>
+          There is no special occasion behind this.
+          I just hope you enjoy exploring it as much as I enjoyed making it.
+        </p>
+        <p>
+          Take care of yourself, keep smiling, and may life bring you plenty of beautiful moments worth remembering.
+        </p>
+        <p class="letter-sign">That's all. Take care ♡</p>
+      </div>
+    </button>
+  </div>
+</section>
+
+<section class="light-section">
+  <div class="reveal">
+    <div class="eyebrow">06 / Leave a little light</div>
+    <h2>Make a wish.<br><em>Keep it yours.</em></h2>
+    <p>Tap the space below and watch the night change.</p>
+    <canvas id="lightCanvas" aria-label="Interactive glowing particles"></canvas>
+    <button class="light-btn" id="wishBtn">MAKE THE NIGHT GLOW ✦</button>
+  </div>
+</section>
+
+<section class="ending" id="ending">
+  <div class="hero-glow"></div>
+  <div class="reveal">
+    <div class="eyebrow">The end of this little journey</div>
+    <h2>And that is<br><em>the whole thing.</em></h2>
+    <p>
+      Fifteen frames. A song. A few thoughts.<br>
+      And a small effort to make an ordinary moment feel different.
+    </p>
+    <p class="signature">I hope this gave you a reason to smile.</p>
+    <button class="replay" id="replayBtn">↺ EXPERIENCE IT AGAIN</button>
+  </div>
+</section>
+</main>
+
+<footer>MADE WITH CARE · JUST FOR THIS MOMENT</footer>
+</div>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Photograph viewer">
+  <button class="lightbox-close" id="closeLightbox" aria-label="Close">×</button>
+  <button class="lightbox-prev" id="prevPhoto" aria-label="Previous photograph">←</button>
+  <img id="lightboxImage" src="" alt="Expanded photograph">
+  <button class="lightbox-next" id="nextPhoto" aria-label="Next photograph">→</button>
+  <div id="lightbox-count">01 / 15</div>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+
+  const photos = [
+    "IMG_20261028_212414_314.jpg",
+    "IMG_20261028_212414_116.jpg",
+    "IMG_20261028_212414_090.jpg",
+    "IMG_20261028_212413_979.jpg",
+    "IMG_20261028_212413_818.jpg",
+    "IMG_20261028_212413_767.jpg",
+    "IMG_20261028_212413_604.jpg",
+    "IMG_20261028_210734_431.jpg",
+    "IMG_20261028_210734_278.jpg",
+    "IMG_20261028_210734_115.jpg",
+    "IMG_20261028_210734_093.jpg",
+    "IMG_20261028_210733_716.jpg",
+    "IMG_20261028_210733_547.jpg",
+    "IMG_20261028_210733_531.jpg",
+    "IMG_20261028_210733_506.jpg"
+  ];
+
+  const audio = $("#music");
+  const musicBtn = $("#musicBtn");
+  const musicText = $("#musicText");
+  let musicOn = false;
+
+  async function startMusic() {
+    try {
+      audio.volume = 0.42;
+      await audio.play();
+      musicOn = true;
+      musicText.textContent = "SOUND ON";
+      musicBtn.classList.add("playing");
+    } catch (e) {
+      musicOn = false;
+      musicText.textContent = "TAP FOR SOUND";
+      musicBtn.classList.remove("playing");
+    }
+  }
+
+  function stopMusic() {
+    audio.pause();
+    musicOn = false;
+    musicText.textContent = "SOUND OFF";
+    musicBtn.classList.remove("playing");
+  }
+
+  musicBtn.addEventListener("click", () => {
+    if (musicOn) stopMusic();
+    else startMusic();
+  });
+
+  $("#enterBtn").addEventListener("click", async () => {
+    $("#intro").classList.add("gone");
+    $("#app").classList.add("ready");
+    document.body.classList.remove("locked");
+    await startMusic();
+    setTimeout(() => $("#top").scrollIntoView({ behavior: "smooth" }), 250);
+  });
+
+  // Background stars
+  const starCanvas = $("#stars");
+  const starCtx = starCanvas.getContext("2d");
+  let stars = [];
+  let sw = 0, sh = 0, starFrame = 0;
+
+  function resizeStars() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    sw = window.innerWidth;
+    sh = window.innerHeight;
+    starCanvas.width = sw * dpr;
+    starCanvas.height = sh * dpr;
+    starCanvas.style.width = sw + "px";
+    starCanvas.style.height = sh + "px";
+    starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    stars = Array.from({ length: Math.min(150, Math.floor(sw / 7)) }, () => ({
+      x: Math.random() * sw,
+      y: Math.random() * sh,
+      r: Math.random() * 1.2 + .15,
+      a: Math.random() * .65 + .12,
+      speed: Math.random() * .006 + .002,
+      phase: Math.random() * 7
+    }));
+  }
+
+  function drawStars() {
+    starCtx.clearRect(0, 0, sw, sh);
+    starFrame += 1;
+    for (const s of stars) {
+      const alpha = s.a * (.65 + .35 * Math.sin(starFrame * s.speed + s.phase));
+      starCtx.fillStyle = `rgba(220,211,229,${alpha})`;
+      starCtx.beginPath();
+      starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      starCtx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+
+  resizeStars();
+  drawStars();
+  window.addEventListener("resize", resizeStars);
+
+  // Scroll reveal and progress
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: .12 });
+
+  $$(".reveal").forEach(el => observer.observe(el));
+
+  window.addEventListener("scroll", () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    $("#progress").style.width = pct + "%";
+  }, { passive: true });
+
+  // Fullscreen photo viewer
+  let currentPhoto = 0;
+  const lightbox = $("#lightbox");
+  const lightboxImage = $("#lightboxImage");
+  const lightboxCount = $("#lightbox-count");
+
+  function showPhoto(index) {
+    currentPhoto = (index + photos.length) % photos.length;
+    lightboxImage.src = photos[currentPhoto];
+    lightboxCount.textContent =
+      String(currentPhoto + 1).padStart(2, "0") + " / " +
+      String(photos.length).padStart(2, "0");
+  }
+
+  function openPhoto(index) {
+    showPhoto(index);
+    lightbox.classList.add("show");
+    document.body.classList.add("locked");
+  }
+
+  function closePhoto() {
+    lightbox.classList.remove("show");
+    document.body.classList.remove("locked");
+  }
+
+  $$(".gallery-item").forEach(btn => {
+    btn.addEventListener("click", () => openPhoto(Number(btn.dataset.index)));
+  });
+
+  $("#closeLightbox").addEventListener("click", closePhoto);
+  $("#prevPhoto").addEventListener("click", () => showPhoto(currentPhoto - 1));
+  $("#nextPhoto").addEventListener("click", () => showPhoto(currentPhoto + 1));
+
+  lightbox.addEventListener("click", e => {
+    if (e.target === lightbox) closePhoto();
+  });
+
+  document.addEventListener("keydown", e => {
+    if (!lightbox.classList.contains("show")) return;
+    if (e.key === "Escape") closePhoto();
+    if (e.key === "ArrowRight") showPhoto(currentPhoto + 1);
+    if (e.key === "ArrowLeft") showPhoto(currentPhoto - 1);
+  });
+
+  let touchStartX = 0;
+  lightbox.addEventListener("touchstart", e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  lightbox.addEventListener("touchend", e => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(dx) > 50) showPhoto(currentPhoto + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  // Duplicate the film strip for a seamless moving loop
+  const filmTrack = $("#filmTrack");
+  [...filmTrack.children].forEach(img => {
+    const clone = img.cloneNode(true);
+    clone.alt = "";
+    clone.setAttribute("aria-hidden", "true");
+    filmTrack.appendChild(clone);
+  });
+
+  // Interactive envelope
+  $("#envelope").addEventListener("click", () => {
+    const letter = $("#letter");
+    const isOpen = letter.classList.toggle("open");
+    $("#envelope").setAttribute("aria-expanded", String(isOpen));
+    $("#envelopeSymbol").textContent = isOpen ? "♡" : "✉";
+    $("#envelopeLabel").textContent = isOpen ? "A NOTE, JUST FOR YOU" : "OPEN WHEN YOU'RE READY";
+  });
+
+  // Interactive glowing particles
+  const canvas = $("#lightCanvas");
+  const ctx = canvas.getContext("2d");
+  let cw = 0, ch = 0, particles = [], lightAnimation = null;
+
+  function resizeLightCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    cw = rect.width;
+    ch = rect.height;
+    canvas.width = Math.max(1, Math.floor(cw * dpr));
+    canvas.height = Math.max(1, Math.floor(ch * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawParticles();
+  }
+
+  function addBurst(x, y) {
+    for (let i = 0; i < 38; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 1.7 + .25;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        radius: Math.random() * 2 + .5,
+        hue: 30 + Math.random() * 35
+      });
+    }
+    if (particles.length > 500) particles = particles.slice(-500);
+    if (!lightAnimation) animateParticles();
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, cw, ch);
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = `hsl(${p.hue} 65% 78%)`;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = `hsl(${p.hue} 65% 70%)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, cw, ch);
+    particles = particles.filter(p => p.life > .02);
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= .99;
+      p.vy *= .99;
+      p.vy -= .004;
+      p.life -= .008;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = `hsl(${p.hue} 65% 78%)`;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = `hsl(${p.hue} 65% 70%)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    if (particles.length) {
+      lightAnimation = requestAnimationFrame(animateParticles);
+    } else {
+      cancelAnimationFrame(lightAnimation);
+      lightAnimation = null;
+    }
+  }
+
+  canvas.addEventListener("pointerdown", e => {
+    const rect = canvas.getBoundingClientRect();
+    addBurst(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  $("#wishBtn").addEventListener("click", () => {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        addBurst(cw * (.15 + Math.random() * .7), ch * (.2 + Math.random() * .6));
+      }, i * 160);
+    }
+  });
+
+  window.addEventListener("resize", resizeLightCanvas);
+  resizeLightCanvas();
+
+  // Replay from the beginning
+  $("#replayBtn").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      $("#intro").classList.remove("gone");
+      $("#app").classList.remove("ready");
+      document.body.classList.add("locked");
+    }, 800);
+  });
+
+})();
+</script>
+</body>
+</html>
