@@ -1,0 +1,691 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090d0c">
+<title>Где-то, в одно мгновение</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#090d0c;
+  --text:#f0eee6;
+  --muted:#a4ada5;
+  --green:#b4c9a8;
+  --line:rgba(230,240,226,.14);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;overflow-x:hidden}
+body.locked{overflow:hidden}
+::selection{background:var(--green);color:#101510}
+button{font:inherit}
+button:focus-visible{outline:1px solid var(--green);outline-offset:5px}
+main,header,footer,section{position:relative;z-index:1}
+.serif{font-family:var(--serif)}
+.italic{font-style:italic}
+.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.2em;font-size:9px;line-height:1.8}
+.inner{max-width:1120px;margin:auto}
+.rule{height:1px;background:var(--line)}
+.center{text-align:center}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .9s,transform .9s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.delay-1{transition-delay:.12s}.delay-2{transition-delay:.24s}.delay-3{transition-delay:.36s}
+
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55}
+.grain{position:fixed;inset:-50%;width:200%;height:200%;z-index:20;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");animation:grainMove .25s steps(2) infinite}
+@keyframes grainMove{0%{transform:translate(0,0)}50%{transform:translate(-1%,1%)}100%{transform:translate(1%,-1%)}}
+
+/* Central opening screen */
+.intro-screen{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at center,#17221a 0%,#0a100c 55%,#070a08 100%);display:flex;align-items:center;justify-content:center;padding:25px;text-align:center;transition:opacity .9s,visibility .9s;overflow:hidden}
+.intro-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.intro-content{width:100%;max-width:590px;animation:riseIn 1.4s both;position:relative;z-index:2}
+.intro-symbol{font-size:24px;color:var(--green);margin-bottom:27px;animation:symbolGlow 3s ease-in-out infinite}
+.intro-title{font-family:var(--serif);font-size:clamp(44px,8vw,78px);line-height:.98;font-weight:400;letter-spacing:-.035em;margin:25px 0}
+.intro-title em{color:var(--green);font-weight:400}
+.intro-copy{max-width:390px;margin:0 auto;color:#adb7ad;font-size:12px;line-height:2}
+.enter-button{margin-top:35px;padding:16px 28px;border:1px solid rgba(180,201,168,.6);background:rgba(180,201,168,.06);color:var(--text);cursor:pointer;font-size:10px;letter-spacing:.15em;text-transform:uppercase;transition:all .35s}
+.enter-button:hover{background:var(--green);color:#101510;box-shadow:0 0 35px #b4c9a822}
+.intro-foot{display:block;margin-top:40px;color:#748074;font-size:9px;letter-spacing:.1em;line-height:2}
+.music-visual{height:40px;display:flex;align-items:center;justify-content:center;gap:5px;margin:25px auto 0}
+.music-visual span{display:block;width:2px;height:9px;background:var(--green);border-radius:5px;opacity:.7}
+.music-visual.active span{animation:equalize .8s ease-in-out infinite alternate}
+.music-visual span:nth-child(2){animation-delay:-.2s}
+.music-visual span:nth-child(3){animation-delay:-.5s}
+.music-visual span:nth-child(4){animation-delay:-.3s}
+.music-visual span:nth-child(5){animation-delay:-.6s}
+.music-visual span:nth-child(6){animation-delay:-.1s}
+.music-visual span:nth-child(7){animation-delay:-.4s}
+@keyframes equalize{from{height:5px;opacity:.45}to{height:32px;opacity:1}}
+@keyframes symbolGlow{0%,100%{opacity:.6}50%{opacity:1;text-shadow:0 0 20px #b4c9a866}}
+@keyframes riseIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* Header and hero */
+.topbar{position:absolute;top:0;left:0;width:100%;z-index:5;padding:27px 6%;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{font-family:var(--serif);font-size:21px;color:var(--text);text-decoration:none}
+.brand span{color:var(--green)}
+.top-note{font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.hero{min-height:100svh;padding:140px 7% 90px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-content{max-width:790px;text-align:center;position:relative;z-index:2}
+.hero-title{font-family:var(--serif);font-size:clamp(54px,10vw,112px);line-height:.88;font-weight:400;letter-spacing:-.045em;margin:27px 0}
+.hero-title em{color:var(--green);font-weight:400}
+.hero-description{max-width:440px;margin:30px auto 0;color:#b4bcb5;font-size:12px;line-height:2.1}
+.hero-bottom{margin-top:62px;display:flex;align-items:center;justify-content:center;gap:13px;color:var(--muted);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.hero-bottom:before,.hero-bottom:after{content:'';width:28px;height:1px;background:#566357}
+.float-photo{position:absolute;width:clamp(100px,14vw,180px);aspect-ratio:3/4;object-fit:cover;filter:saturate(.65) brightness(.72);border:5px solid #f0eee610;opacity:.58;box-shadow:0 15px 70px #0008;animation:float 7s ease-in-out infinite}
+.float-one{left:8%;top:19%;transform:rotate(-9deg)}
+.float-two{right:9%;top:22%;transform:rotate(8deg);animation-delay:-2s}
+.float-three{left:14%;bottom:8%;transform:rotate(5deg);animation-delay:-4s}
+.float-four{right:13%;bottom:9%;transform:rotate(-7deg);animation-delay:-1s}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+.scroll-indicator{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:12px;color:#7c887d;font-size:8px;letter-spacing:.2em}
+.scroll-line{height:35px;width:1px;background:linear-gradient(var(--green),transparent);animation:scrollPulse 2s infinite}
+@keyframes scrollPulse{0%,100%{opacity:.4;transform:scaleY(.7);transform-origin:top}50%{opacity:1;transform:scaleY(1);transform-origin:top}}
+
+/* Story sections */
+.story-section,.chapter-section,.chapter-three,.gallery-section,.letter-section,.wishes-section{padding:130px 8%}
+.story-grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:12%;align-items:start}
+.story-side{position:sticky;top:100px}
+.chapter-number{font-family:var(--serif);color:#758576;font-size:68px;line-height:1}
+.story-heading{font-family:var(--serif);font-size:clamp(39px,5vw,62px);font-weight:400;line-height:1.02;letter-spacing:-.025em;margin-top:25px}
+.story-heading em{color:var(--green)}
+.story-copy p,.chapter-copy p{font-size:13px;line-height:2.2;color:#b3bbb4;margin-bottom:23px}
+.story-copy .emphasis{font-family:var(--serif);color:var(--text);font-size:27px;line-height:1.5;margin-top:40px}
+.quote-section{min-height:420px;padding:100px 8%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#17221b 0%,#0b100d 65%,#090d0c 100%);text-align:center}
+.quote-mark{font-family:var(--serif);color:#849a82;font-size:70px;line-height:.7}
+.quote-text{font-family:var(--serif);font-size:clamp(32px,5vw,55px);line-height:1.2;max-width:790px;margin:22px auto;font-weight:400}
+.quote-text em{color:var(--green)}
+.quote-caption{margin-top:30px;color:#788479;font-size:9px;text-transform:uppercase;letter-spacing:.2em}
+.chapter-layout{display:grid;grid-template-columns:1fr .9fr;align-items:center;gap:10%}
+.chapter-title{font-family:var(--serif);font-weight:400;font-size:clamp(42px,6vw,75px);line-height:.98;letter-spacing:-.035em;margin:25px 0 35px}
+.chapter-title em{color:var(--green)}
+.chapter-copy p{margin-bottom:20px}
+.chapter-photo{width:100%;max-width:410px;aspect-ratio:4/5;object-fit:cover;filter:saturate(.72) brightness(.82);display:block;margin-left:auto;box-shadow:0 30px 100px #0007}
+.photo-frame{position:relative}
+.photo-frame:after{content:'';position:absolute;inset:18px -18px -18px 18px;border:1px solid #b4c9a840;z-index:-1}
+.interlude{padding:115px 8%;text-align:center;background:#0c120f}
+.interlude p{max-width:730px;margin:auto;font-family:var(--serif);font-size:clamp(31px,5vw,54px);line-height:1.25}
+.interlude p em{color:var(--green)}
+.interlude .subline{max-width:510px;margin:25px auto 0;color:#929d93;font-family:var(--sans);font-size:12px;line-height:2}
+.chapter-three-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:12%;align-items:start}
+.chapter-three .chapter-title{max-width:430px}
+.chapter-three .chapter-copy{padding-top:15px}
+
+/* Gallery */
+.gallery-heading{text-align:center;margin:0 auto 55px}
+.gallery-heading h2{font-family:var(--serif);font-weight:400;font-size:clamp(43px,6vw,68px);line-height:1;margin:20px 0}
+.gallery-heading h2 em{color:var(--green)}
+.gallery-heading p{color:#9ca79d;font-size:12px;line-height:1.9}
+.gallery-grid{max-width:1160px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.gallery-item{position:relative;overflow:hidden;border:0;background:#111813;cursor:zoom-in;padding:0;aspect-ratio:3/4}
+.gallery-item:nth-child(5n+2){transform:translateY(25px)}
+.gallery-item:nth-child(7n+4){aspect-ratio:4/5}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.7) brightness(.8);transition:transform .7s,filter .7s}
+.gallery-item:hover img{transform:scale(1.06);filter:saturate(.95) brightness(.98)}
+.gallery-item:after{content:'↗';position:absolute;bottom:12px;right:14px;color:#fff;font-size:15px;opacity:0;transition:opacity .3s;text-shadow:0 1px 8px #000}
+.gallery-item:hover:after{opacity:1}
+.film-section{padding:100px 0 130px;overflow:hidden}
+.film-heading{text-align:center;margin-bottom:45px}
+.film-heading h2{font-family:var(--serif);font-size:clamp(36px,5vw,56px);font-weight:400}
+.film-heading h2 em{color:var(--green)}
+.film-track{display:flex;width:max-content;gap:13px;animation:filmMove 60s linear infinite}
+.film-track:hover{animation-play-state:paused}
+.film-track img{height:clamp(170px,22vw,280px);width:auto;max-width:250px;object-fit:cover;filter:saturate(.6) brightness(.75)}
+@keyframes filmMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* Letter invitation */
+.letter-section{background:radial-gradient(ellipse at center,#17211a,#090d0c 72%)}
+.letter-card{max-width:850px;margin:auto;border:1px solid #b4c9a838;padding:clamp(30px,7vw,80px);text-align:center;position:relative}
+.letter-card:before{content:'✧';position:absolute;top:-17px;left:50%;transform:translateX(-50%);color:var(--green);background:#101712;padding:0 20px;font-size:21px}
+.letter-card h2{font-family:var(--serif);font-weight:400;font-size:clamp(43px,6vw,65px);margin:20px 0}
+.letter-card h2 em{color:var(--green)}
+.letter-card p{color:#9fa99f;font-size:12px;line-height:2}
+.open-letter,.wish-button{margin-top:35px;background:transparent;color:var(--text);border:1px solid #b4c9a880;padding:15px 25px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.open-letter:hover,.wish-button:hover{background:var(--green);color:#101510}
+.letter-modal{position:fixed;inset:0;z-index:80;background:#030604f2;backdrop-filter:blur(12px);padding:24px;display:flex;justify-content:center;align-items:center;overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+.letter-modal.open{opacity:1;visibility:visible}
+.letter-paper{max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:clamp(28px,6vw,65px);background:#e9e6d9;color:#29342b;position:relative;transform:translateY(15px);transition:transform .4s}
+.letter-modal.open .letter-paper{transform:translateY(0)}
+.close-letter{position:sticky;top:0;float:right;border:1px solid #a6afa2;background:transparent;color:#29342b;width:34px;height:34px;cursor:pointer;font-size:18px;z-index:2}
+.letter-paper .letter-date{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:#647362;margin-bottom:25px}
+.letter-paper h3{font-family:var(--serif);font-size:40px;font-weight:500;margin-bottom:25px}
+.letter-paper p{font-family:var(--serif);font-size:20px;line-height:1.75;margin-bottom:18px}
+.letter-signoff{font-family:var(--serif);font-size:25px;font-style:italic;margin-top:28px;color:#50634f}
+
+/* Wishes */
+.wishes-section{text-align:center;overflow:hidden;background:#0b100d}
+.wishes-section h2{font-family:var(--serif);font-size:clamp(43px,6vw,70px);font-weight:400;line-height:1;max-width:700px;margin:22px auto}
+.wishes-section h2 em{color:var(--green)}
+.wishes-copy{max-width:570px;margin:30px auto;color:#a7b1a8;font-size:12px;line-height:2.2}
+.wish-button{margin-top:12px}
+.wish-result{min-height:90px;max-width:600px;margin:30px auto 0;font-family:var(--serif);font-size:clamp(26px,4vw,38px);font-style:italic;color:var(--green);line-height:1.35;opacity:0;transform:translateY(8px);transition:all .5s}
+.wish-result.show{opacity:1;transform:translateY(0)}
+.particle{position:absolute;pointer-events:none;color:var(--green);animation:particleRise 3s ease-out forwards}
+@keyframes particleRise{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:.8}100%{opacity:0;transform:translateY(-160px) scale(1.3) rotate(35deg)}}
+
+/* Ending */
+.ending-section{min-height:85vh;padding:130px 8%;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#172019,#090d0c 70%)}
+.ending-content{max-width:750px}
+.ending-title{font-family:var(--serif);font-size:clamp(50px,8vw,90px);font-weight:400;line-height:.98;letter-spacing:-.03em;margin:25px 0}
+.ending-title em{color:var(--green)}
+.ending-copy{max-width:510px;margin:25px auto;color:#aab3ab;font-size:12px;line-height:2.2}
+.ending-final{font-family:var(--serif);font-size:clamp(25px,4vw,37px);line-height:1.4;color:var(--green);margin:40px auto}
+.replay-button{border:0;background:transparent;color:#aab5ab;cursor:pointer;padding:14px;font-size:10px;letter-spacing:.13em;text-transform:uppercase}
+.replay-button:hover{color:var(--green)}
+footer{padding:28px 6%;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;color:#7e8a7f;font-size:9px;letter-spacing:.08em;position:relative;z-index:1}
+
+/* Minimal music button: icon only, no corner text */
+.music-control{position:fixed;bottom:22px;right:22px;z-index:30;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #b4c9a85c;background:#0a0f0ce8;backdrop-filter:blur(10px);color:var(--green);cursor:pointer;font-size:16px;box-shadow:0 5px 25px #0005;transition:all .3s}
+.music-control:hover{background:#18221a;transform:scale(1.05)}
+.music-control.playing{box-shadow:0 0 20px #b4c9a820}
+.music-control .icon-pause{display:none}
+.music-control.playing .icon-play{display:none}
+.music-control.playing .icon-pause{display:inline}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;z-index:90;background:#030504f5;display:flex;align-items:center;justify-content:center;padding:30px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;cursor:zoom-out}
+.lightbox.open{opacity:1;visibility:visible}
+.lightbox img{max-width:min(90vw,1000px);max-height:85vh;object-fit:contain;box-shadow:0 20px 100px #0009;transform:scale(.97);transition:transform .3s}
+.lightbox.open img{transform:scale(1)}
+.lightbox-close{position:absolute;top:22px;right:25px;color:white;background:transparent;border:0;font-size:30px;cursor:pointer}
+
+@media(max-width:760px){
+ .story-section,.chapter-section,.chapter-three,.gallery-section,.letter-section,.wishes-section{padding:90px 7%}
+ .topbar{padding:22px 6%}.top-note{font-size:8px;letter-spacing:.07em}
+ .hero{min-height:92svh;padding:130px 7% 100px}.hero-title{font-size:clamp(52px,15vw,85px)}
+ .float-photo{width:92px;opacity:.35}
+ .float-one{left:2%;top:17%}.float-two{right:2%;top:17%}.float-three{left:4%;bottom:8%}.float-four{right:4%;bottom:8%}
+ .story-grid,.chapter-layout,.chapter-three-grid{grid-template-columns:1fr;gap:40px}
+ .story-side{position:static}.chapter-number{font-size:55px}
+ .story-copy p,.chapter-copy p{font-size:12px}
+ .chapter-photo{max-width:85%;margin:0 auto}
+ .chapter-three .chapter-copy{padding-top:0}
+ .gallery-grid{grid-template-columns:repeat(2,1fr);gap:9px}
+ .gallery-item:nth-child(5n+2){transform:none}
+ .gallery-item:nth-child(3n){transform:translateY(12px)}
+ .gallery-item:nth-child(7n+4){aspect-ratio:3/4}
+ .film-track img{height:175px}
+ .music-control{right:12px;bottom:12px;width:42px;height:42px}
+ footer{padding-bottom:65px;line-height:1.8}
+ .letter-paper p{font-size:18px}
+ .ending-section{min-height:75vh}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+
+<body class="locked">
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Music starts automatically if the browser permits it.
+     If autoplay is blocked, the central button starts it on tap. -->
+<audio id="backgroundMusic" loop preload="auto" autoplay>
+  <source src="I thought I saw your face today (sped up).mp3" type="audio/mpeg">
+</audio>
+
+<!-- Central welcome / music screen -->
+<div class="intro-screen" id="intro">
+  <div class="intro-content">
+    <div class="intro-symbol">✧</div>
+    <p class="eyebrow">Небольшой мир, созданный для тебя</p>
+    <h1 class="intro-title">Где-то,<br><em>в одно мгновение.</em></h1>
+    <p class="intro-copy">
+      Не каждому важному чувству нужен особый повод.
+      Иногда достаточно того, что есть человек, ради которого хочется что-то создать.
+    </p>
+    <div class="music-visual" id="musicVisual" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <button class="enter-button" id="enterBtn">Войти и включить музыку ↗</button>
+    <span class="intro-foot">Лучше всего — в наушниках, в своём маленьком мире.<br>Создано с заботой и частичкой души ♡</span>
+  </div>
+</div>
+
+<header class="topbar">
+  <a href="#home" class="brand">на мгновение <span>♡</span></a>
+  <span class="top-note">Коллекция маленьких мгновений</span>
+</header>
+
+<main>
+<section class="hero" id="home">
+  <img class="float-photo float-one" src="IMG_20261028_212414_314.jpg" alt="Мгновение из твоего мира">
+  <img class="float-photo float-two" src="IMG_20261028_212414_116.jpg" alt="Ещё одно прекрасное мгновение">
+  <img class="float-photo float-three" src="IMG_20261028_212414_090.jpg" alt="Воспоминание в фотографии">
+  <img class="float-photo float-four" src="IMG_20261028_212413_979.jpg" alt="Маленькая частичка твоего мира">
+
+  <div class="hero-content">
+    <p class="eyebrow reveal">Для одного особенного человека</p>
+    <h1 class="hero-title reveal delay-1">Некоторые люди<br>делают обычное<br><em>особенным.</em></h1>
+    <p class="hero-description reveal delay-2">
+      Иногда человек даже не замечает, как много тепла приносит в чужие дни.
+      И, возможно, именно в этом и заключается самое прекрасное.
+    </p>
+    <div class="hero-bottom reveal delay-3">Немного тепла — только для тебя</div>
+  </div>
+  <div class="scroll-indicator" aria-hidden="true"><span>НЕ СПЕШИ</span><div class="scroll-line"></div></div>
+</section>
+
+<div class="rule"></div>
+
+<section class="story-section">
+  <div class="inner story-grid">
+    <div class="story-side reveal">
+      <span class="chapter-number">01</span>
+      <p class="eyebrow">То, что остаётся с нами</p>
+      <h2 class="story-heading">Некоторые люди оставляют после себя <em>больше, чем воспоминания.</em></h2>
+    </div>
+    <div class="story-copy reveal delay-1">
+      <p>Забавно, как человек может незаметно стать важной частью твоих дней. И для этого не обязательно должно произойти что-то необыкновенное. Иногда всё начинается с разговора, случайной улыбки или появления чьего-то имени на экране.</p>
+      <p>А потом ты вдруг замечаешь, что привычные вещи ощущаются немного иначе. Некоторые песни хочется слушать дольше. Мелочи неожиданно напоминают об этом человеке. А простого разговора начинаешь ждать с особым теплом.</p>
+      <p>Мне кажется, самые дорогие люди — не всегда те, кто громко появляется в нашей жизни. Иногда это те, кто совершенно незаметно занимает место в наших мыслях, даже ничего для этого не делая.</p>
+      <p class="emphasis">И почему-то это значит так много.</p>
+    </div>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="inner reveal">
+    <div class="quote-mark">“</div>
+    <p class="quote-text">Иногда человек становится <em>самой приятной частью твоего дня</em>, даже не подозревая об этом.</p>
+    <div class="quote-caption">О чувствах, о которых не всегда говорят</div>
+  </div>
+</section>
+
+<section class="chapter-section">
+  <div class="inner chapter-layout">
+    <div class="chapter-copy reveal">
+      <p class="eyebrow">Глава 02 · То, чего ты можешь не замечать</p>
+      <h2 class="chapter-title">То, чего ты<br>можешь не <em>замечать.</em></h2>
+      <p>Возможно, ты не всегда видишь себя такой, какой тебя видят другие. Возможно, то, что делает тебя особенной, кажется тебе совершенно обычным, потому что ты живёшь с этим каждый день.</p>
+      <p>Но в человеке может быть что-то прекрасное: его присутствие, манера говорить, чувство юмора или просто способность делать разговор лёгким и естественным.</p>
+      <p>Иногда именно самые маленькие детали становятся тем, что мы ценим в человеке больше всего.</p>
+      <p class="serif italic" style="color:var(--green);font-size:23px;margin-top:28px">Даже не пытаясь быть кем-то необыкновенным.</p>
+    </div>
+    <div class="photo-frame reveal delay-2">
+      <img class="chapter-photo" src="IMG_20261028_212413_818.jpg" alt="Один из тёплых моментов" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="interlude">
+  <div class="inner reveal">
+    <p>Некоторым связям не нужны <em>громкие слова,</em> чтобы их почувствовать.</p>
+    <p class="subline">Они живут в разговорах, знакомых песнях, неожиданных улыбках и маленьких мгновениях, которые почему-то остаются с нами надолго.</p>
+  </div>
+</section>
+
+<section class="chapter-three">
+  <div class="inner chapter-three-grid">
+    <div class="reveal">
+      <p class="eyebrow">Глава 03 · Когда слов недостаточно</p>
+      <h2 class="chapter-title">Больше,<br>чем могут<br>сказать <em>слова.</em></h2>
+    </div>
+    <div class="chapter-copy reveal delay-1">
+      <p>Есть люди, которых ценишь по причинам, которые трудно уместить в одном красивом предложении. Не потому, что не понимаешь своих чувств, а потому, что иногда словам просто не хватает места.</p>
+      <p>Можно сказать человеку, что он добрый, замечательный или важный. И всё это будет правдой. Но иногда даже этих слов недостаточно, чтобы выразить то место, которое он незаметно занял в твоей жизни.</p>
+      <p>Поэтому вместо того, чтобы пытаться объяснить всё, иногда хочется просто что-то создать. Собрать несколько мгновений, найти песню, уделить внимание мелочам и надеяться, что чувство, стоящее за всем этим, будет понятно без лишних объяснений.</p>
+      <p class="serif italic" style="font-size:27px;color:var(--green);margin-top:35px">Некоторые вещи лучше показать, чем объяснить.</p>
+    </div>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="inner reveal">
+    <div class="quote-mark">“</div>
+    <p class="quote-text">Самые значимые чувства часто оказываются теми, <em>которых мы совсем не планировали.</em></p>
+    <div class="quote-caption">Иногда жизнь удивляет нас тихо</div>
+  </div>
+</section>
+
+<section class="gallery-section">
+  <div class="inner">
+    <div class="gallery-heading reveal">
+      <p class="eyebrow">Глава 04 · Маленькие мгновения</p>
+      <h2>Маленькая частичка<br><em>твоего мира.</em></h2>
+      <p>Пятнадцать кадров, и у каждого своё мгновение.<br>Нажми на любую фотографию, чтобы рассмотреть её поближе.</p>
+    </div>
+    <div class="gallery-grid">
+      <button class="gallery-item reveal" data-photo="IMG_20261028_212414_314.jpg" aria-label="Открыть фотографию 1"><img src="IMG_20261028_212414_314.jpg" alt="Фотография 1" loading="lazy"></button>
+      <button class="gallery-item reveal delay-1" data-photo="IMG_20261028_212414_116.jpg" aria-label="Открыть фотографию 2"><img src="IMG_20261028_212414_116.jpg" alt="Фотография 2" loading="lazy"></button>
+      <button class="gallery-item reveal delay-2" data-photo="IMG_20261028_212414_090.jpg" aria-label="Открыть фотографию 3"><img src="IMG_20261028_212414_090.jpg" alt="Фотография 3" loading="lazy"></button>
+      <button class="gallery-item reveal delay-3" data-photo="IMG_20261028_212413_979.jpg" aria-label="Открыть фотографию 4"><img src="IMG_20261028_212413_979.jpg" alt="Фотография 4" loading="lazy"></button>
+      <button class="gallery-item reveal" data-photo="IMG_20261028_212413_818.jpg" aria-label="Открыть фотографию 5"><img src="IMG_20261028_212413_818.jpg" alt="Фотография 5" loading="lazy"></button>
+      <button class="gallery-item reveal delay-1" data-photo="IMG_20261028_212413_767.jpg" aria-label="Открыть фотографию 6"><img src="IMG_20261028_212413_767.jpg" alt="Фотография 6" loading="lazy"></button>
+      <button class="gallery-item reveal delay-2" data-photo="IMG_20261028_212413_604.jpg" aria-label="Открыть фотографию 7"><img src="IMG_20261028_212413_604.jpg" alt="Фотография 7" loading="lazy"></button>
+      <button class="gallery-item reveal delay-3" data-photo="IMG_20261028_210734_431.jpg" aria-label="Открыть фотографию 8"><img src="IMG_20261028_210734_431.jpg" alt="Фотография 8" loading="lazy"></button>
+      <button class="gallery-item reveal" data-photo="IMG_20261028_210734_278.jpg" aria-label="Открыть фотографию 9"><img src="IMG_20261028_210734_278.jpg" alt="Фотография 9" loading="lazy"></button>
+      <button class="gallery-item reveal delay-1" data-photo="IMG_20261028_210734_115.jpg" aria-label="Открыть фотографию 10"><img src="IMG_20261028_210734_115.jpg" alt="Фотография 10" loading="lazy"></button>
+      <button class="gallery-item reveal delay-2" data-photo="IMG_20261028_210734_093.jpg" aria-label="Открыть фотографию 11"><img src="IMG_20261028_210734_093.jpg" alt="Фотография 11" loading="lazy"></button>
+      <button class="gallery-item reveal delay-3" data-photo="IMG_20261028_210733_716.jpg" aria-label="Открыть фотографию 12"><img src="IMG_20261028_210733_716.jpg" alt="Фотография 12" loading="lazy"></button>
+      <button class="gallery-item reveal" data-photo="IMG_20261028_210733_547.jpg" aria-label="Открыть фотографию 13"><img src="IMG_20261028_210733_547.jpg" alt="Фотография 13" loading="lazy"></button>
+      <button class="gallery-item reveal delay-1" data-photo="IMG_20261028_210733_531.jpg" aria-label="Открыть фотографию 14"><img src="IMG_20261028_210733_531.jpg" alt="Фотография 14" loading="lazy"></button>
+      <button class="gallery-item reveal delay-2" data-photo="IMG_20261028_210733_506.jpg" aria-label="Открыть фотографию 15"><img src="IMG_20261028_210733_506.jpg" alt="Фотография 15" loading="lazy"></button>
+    </div>
+  </div>
+</section>
+
+<section class="film-section">
+  <div class="film-heading reveal">
+    <p class="eyebrow">Мгновения, которые хочется сохранить</p>
+    <h2>Будто время <em>замедлилось.</em></h2>
+  </div>
+  <div class="film-track" aria-label="Лента фотографий">
+    <img src="IMG_20261028_212414_314.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_116.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_090.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_979.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_818.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_767.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_604.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_431.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_278.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_115.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_093.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_716.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_547.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_531.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_506.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_314.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_116.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212414_090.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_979.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_818.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_767.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_212413_604.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_431.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_278.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_115.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210734_093.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_716.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_547.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_531.jpg" alt="" loading="lazy">
+    <img src="IMG_20261028_210733_506.jpg" alt="" loading="lazy">
+  </div>
+</section>
+
+<section class="letter-section">
+  <div class="letter-card reveal">
+    <p class="eyebrow">Несколько слов от сердца</p>
+    <h2>Небольшое <em>письмо</em> для тебя.</h2>
+    <p>Сделай небольшой вдох. Здесь совершенно некуда спешить.</p>
+    <button class="open-letter" id="openLetter">Открыть письмо ↗</button>
+  </div>
+</section>
+
+<section class="wishes-section" id="wishes">
+  <div class="inner reveal">
+    <p class="eyebrow">Искренне, от всего сердца</p>
+    <h2>Пусть жизнь будет <em>бережна к твоему сердцу.</em></h2>
+    <div class="wishes-copy">
+      <p>Пусть даже в трудные дни у тебя будут поводы смеяться, рядом будут люди, которые понимают тебя без долгих объяснений, и случаются мгновения, напоминающие, насколько прекрасной может быть жизнь.</p>
+      <p style="margin-top:18px">Пусть всё, о чём ты тихонько мечтаешь, однажды найдёт дорогу к тебе. И пусть тебе никогда не приходится сомневаться в том, что ты заслуживаешь счастья.</p>
+    </div>
+    <button class="wish-button" id="wishBtn">Загадать маленькое желание ✧</button>
+    <div class="wish-result" id="wishResult" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="ending-section" id="ending">
+  <div class="ending-content reveal">
+    <p class="eyebrow">И прежде чем ты уйдёшь…</p>
+    <h2 class="ending-title">Некоторые вещи<br><em>остаются с нами.</em></h2>
+    <p class="ending-copy">Пятнадцать кадров. Одна песня. Несколько невысказанных мыслей. И человек, которому захотелось подарить тебе улыбку — пусть даже всего на одно мгновение.</p>
+    <p class="ending-copy">Надеюсь, этот маленький уголок интернета подарил тебе повод ненадолго остановиться, улыбнуться и почувствовать, что тобой дорожат. Некоторые люди особенные так, что словами это трудно объяснить.</p>
+    <p class="ending-final">Некоторые люди особенные так,<br>что словам не хватает смысла. ♡</p>
+    <button class="replay-button" id="replayBtn">Остаться ещё на мгновение ↺</button>
+  </div>
+</section>
+</main>
+
+<footer>
+  <span>Создано с заботой · Маленькое мгновение только для тебя ♡</span>
+  <span>С теплом, в каждом маленьком слове</span>
+</footer>
+
+<!-- Icon only; no annoying text -->
+<button class="music-control" id="musicBtn" aria-label="Включить музыку" title="Музыка">
+  <span class="icon-play">▶</span>
+  <span class="icon-pause">Ⅱ</span>
+</button>
+
+<div class="letter-modal" id="letterModal" role="dialog" aria-modal="true" aria-label="Письмо для тебя">
+  <article class="letter-paper">
+    <button class="close-letter" id="closeLetter" aria-label="Закрыть письмо">×</button>
+    <p class="letter-date">Несколько искренних слов</p>
+    <h3>Привет…</h3>
+    <p>Знаешь, я кое-что заметил. Разговор с тобой может сделать самый обычный день по-настоящему приятнее. И иногда я ловлю себя на том, что улыбаюсь сообщению дольше, чем ожидал.</p>
+    <p>Не знаю, замечаешь ли ты, как влияешь на людей, но в тебе есть что-то такое, за что тебя очень легко ценить. Может быть, дело в твоём характере, может быть, в том, как легко складываются наши разговоры, а может, просто в том, что ты остаёшься собой.</p>
+    <p>Наверное, некоторые люди становятся особенными для нас тихо. Не благодаря одному грандиозному моменту, а через разговоры, случайные мысли и радость, которую они приносят, даже не стараясь. И порой вдруг понимаешь, что человек стал гораздо важнее, чем ты когда-либо мог представить.</p>
+    <p>Мне захотелось создать для тебя что-то особенное, потому что ты для меня не просто ещё один человек, чьи фотографии мне случайно попались. Ты человек, которого я искренне ценю, чьё присутствие способно сделать день лучше и кому, как мне кажется, стоит иногда напоминать о том хорошем, что ты приносишь в этот мир.</p>
+    <p>Я пишу это не для того, чтобы чего-то попросить или что-то усложнить. Мне просто хотелось, чтобы у тебя было что-то, созданное с заботой. Что-то, что могло бы вызвать у тебя улыбку и напомнить, что тебя ценят гораздо глубже, чем ты, возможно, представляешь.</p>
+    <p>Поэтому просто оставайся собой. Продолжай заниматься тем, что любишь, находить поводы для улыбки и, пожалуйста, помни: качества, которые делают тебя именно тобой, могут очень много значить для другого человека, даже если ему не всегда удаётся выразить это словами.</p>
+    <p>Береги себя. Пусть в твоей жизни будет очень много хорошего. Ты этого заслуживаешь. ♡</p>
+    <div class="letter-signoff">С теплом и самыми добрыми пожеланиями ♡</div>
+  </article>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографии">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Закрыть фотографию">×</button>
+  <img id="lightboxImage" src="" alt="Фотография в увеличенном виде">
+</div>
+
+<script>
+/* Star background */
+(() => {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [], width = 0, height = 0;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    width = innerWidth;
+    height = innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.min(150, Math.floor(width * height / 8500));
+    stars = Array.from({length:count}, () => ({
+      x:Math.random()*width, y:Math.random()*height,
+      r:Math.random()*1.2+.2, a:Math.random()*.55+.15,
+      s:Math.random()*.008+.002, p:Math.random()*Math.PI*2
+    }));
+  }
+
+  let tick = 0;
+  function draw() {
+    ctx.clearRect(0,0,width,height);
+    tick++;
+    stars.forEach(s => {
+      const a = s.a * (.65 + .35 * Math.sin(tick*s.s+s.p));
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(204,222,197,${a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize',resize);
+  resize(); draw();
+})();
+
+/* Try autoplay immediately */
+const music = document.getElementById('backgroundMusic');
+const musicBtn = document.getElementById('musicBtn');
+const musicVisual = document.getElementById('musicVisual');
+const intro = document.getElementById('intro');
+const enterBtn = document.getElementById('enterBtn');
+let musicPlaying = false;
+
+function updateMusicUI() {
+  musicBtn.classList.toggle('playing', musicPlaying);
+  musicVisual.classList.toggle('active', musicPlaying);
+  musicBtn.setAttribute('aria-label', musicPlaying ? 'Выключить музыку' : 'Включить музыку');
+  enterBtn.textContent = musicPlaying ? 'Войти в этот маленький мир ↗' : 'Войти и включить музыку ↗';
+}
+
+async function startMusic() {
+  try {
+    await music.play();
+    musicPlaying = true;
+    updateMusicUI();
+    return true;
+  } catch (error) {
+    musicPlaying = false;
+    updateMusicUI();
+    return false;
+  }
+}
+
+function stopMusic() {
+  music.pause();
+  musicPlaying = false;
+  updateMusicUI();
+}
+
+music.addEventListener('play', () => {
+  musicPlaying = true;
+  updateMusicUI();
+});
+music.addEventListener('pause', () => {
+  musicPlaying = false;
+  updateMusicUI();
+});
+
+/* Attempt autoplay when page loads; browsers may require a tap */
+window.addEventListener('load', () => {
+  startMusic();
+});
+
+/* Main central button: user gesture permits playback */
+enterBtn.addEventListener('click', async () => {
+  if (!musicPlaying) await startMusic();
+  intro.classList.add('hidden');
+  document.body.classList.remove('locked');
+  setTimeout(() => { intro.style.display = 'none'; }, 1000);
+});
+
+musicBtn.addEventListener('click', async () => {
+  if (musicPlaying) stopMusic();
+  else await startMusic();
+});
+
+/* Scroll reveal */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+},{threshold:.12});
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* Lightbox */
+const lightbox = document.getElementById('lightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+
+function openLightbox(src, alt) {
+  lightboxImage.src = src;
+  lightboxImage.alt = alt || 'Фотография в увеличенном виде';
+  lightbox.classList.add('open');
+  document.body.classList.add('locked');
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.classList.remove('locked');
+  setTimeout(() => {
+    if (!lightbox.classList.contains('open')) lightboxImage.src = '';
+  },300);
+}
+document.querySelectorAll('.gallery-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const img = item.querySelector('img');
+    openLightbox(item.dataset.photo, img ? img.alt : 'Фотография');
+  });
+});
+document.getElementById('lightboxClose').addEventListener('click',closeLightbox);
+lightbox.addEventListener('click',e => {
+  if(e.target === lightbox) closeLightbox();
+});
+
+/* Letter modal */
+const letterModal = document.getElementById('letterModal');
+function hideLetter() {
+  letterModal.classList.remove('open');
+  document.body.classList.remove('locked');
+}
+document.getElementById('openLetter').addEventListener('click',() => {
+  letterModal.classList.add('open');
+  document.body.classList.add('locked');
+});
+document.getElementById('closeLetter').addEventListener('click',hideLetter);
+letterModal.addEventListener('click',e => {
+  if(e.target === letterModal) hideLetter();
+});
+
+/* Wishes */
+const wishes = [
+  'Пусть прекрасное само находит тебя. ♡',
+  'Пусть самые счастливые дни будут ещё впереди. ✧',
+  'Пусть у тебя всегда будет повод улыбнуться. ♡',
+  'Пусть жизнь удивляет тебя самым прекрасным образом. ✧',
+  'Пусть твоё сердце найдёт всё спокойствие, которого заслуживает. ♡',
+  'Пусть мир будет к тебе добр и бережен. ✧'
+];
+const wishBtn = document.getElementById('wishBtn');
+const wishResult = document.getElementById('wishResult');
+const wishesSection = document.querySelector('.wishes-section');
+let lastWish = -1;
+
+wishBtn.addEventListener('click',() => {
+  let i;
+  do { i = Math.floor(Math.random()*wishes.length); }
+  while(i === lastWish && wishes.length > 1);
+  lastWish = i;
+  wishResult.classList.remove('show');
+  setTimeout(() => {
+    wishResult.textContent = wishes[i];
+    wishResult.classList.add('show');
+  },120);
+
+  for(let j=0;j<12;j++){
+    const p = document.createElement('span');
+    p.className = 'particle';
+    p.textContent = ['✧','♡','·','✦'][Math.floor(Math.random()*4)];
+    p.style.left = (15+Math.random()*70)+'%';
+    p.style.top = (55+Math.random()*25)+'%';
+    p.style.fontSize = (10+Math.random()*13)+'px';
+    p.style.animationDelay = (Math.random()*.7)+'s';
+    wishesSection.appendChild(p);
+    setTimeout(() => p.remove(),3800);
+  }
+});
+
+/* Replay to top */
+document.getElementById('replayBtn').addEventListener('click',() => {
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* Escape closes overlays */
+document.addEventListener('keydown',e => {
+  if(e.key === 'Escape'){
+    if(lightbox.classList.contains('open')) closeLightbox();
+    if(letterModal.classList.contains('open')) hideLetter();
+  }
+});
+</script>
+</body>
+</html>
